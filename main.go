@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -40,7 +41,7 @@ type Weather struct {
 var weatherEmojis = map[string]string{
 	"Sunny":          "☀️",
 	"Clear":          "🌙",
-	"Partly cloudly": "⛅",
+	"Partly Cloudy": "⛅",
 	"Cloudy":         "☁️",
 	"Overcast":       "☁️",
 	"Mist":           "🌫️",
@@ -57,9 +58,20 @@ var weatherEmojis = map[string]string{
 }
 
 func getEmoji(condition string) string {
-	if emoji, ok := weatherEmojis[condition]; ok {
+	// Trim any leading/trailing spaces and normalize the text
+	normalized := strings.TrimSpace(condition)
+	
+	if emoji, ok := weatherEmojis[normalized]; ok {
 		return emoji
 	}
+	
+	// Try case-insensitive matching as fallback
+	for key, emoji := range weatherEmojis {
+		if strings.EqualFold(normalized, key) {
+			return emoji
+		}
+	}
+	
 	return "🌍"
 }
 
